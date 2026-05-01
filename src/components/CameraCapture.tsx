@@ -9,20 +9,23 @@ interface CameraCaptureProps {
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [stream, setStream] = useState<MediaStream | null>(null)
+  // Use a ref for the active stream to avoid stale closures in callbacks
+  const streamRef = useRef<MediaStream | null>(null)
+  const [hasStream, setHasStream] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
 
-  const startCamera = useCallback(async (facing: 'user' | 'environment' = facingMode) => {
+  const startCamera = useCallback(async (facing: 'user' | 'environment' = 'environment') => {
     try {
-      if (stream) {
-        stream.getTracks().forEach(t => t.stop())
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
       }
       const s = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } },
       })
-      setStream(s)
+      streamRef.current = s
+      setHasStream(true)
       setError(null)
       setPreview(null)
       if (videoRef.current) {
@@ -31,15 +34,15 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     } catch {
       setError('Camera access denied. Please allow camera access and try again.')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facingMode])
+  }, [])
 
   const stopCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop())
-      setStream(null)
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+      setHasStream(false)
     }
-  }, [stream])
+  }, [])
 
   const takePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return
@@ -98,7 +101,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
             Retake
           </button>
         </div>
-      ) : stream ? (
+      ) : hasStream ? (
         <div className="relative rounded-xl overflow-hidden bg-black aspect-[4/3]">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video
@@ -145,7 +148,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
       )}
 
-      {!stream && !preview && (
+      {!hasStream && !preview && (
         <div className="flex gap-2">
           <button
             type="button"

@@ -56,7 +56,10 @@ export default function ShareButton({ photo }: ShareButtonProps) {
     } else {
       // Fallback: copy to clipboard
       try {
-        await navigator.clipboard.writeText(`${shareText}\n${photo.image_url}`)
+        const clipboardText = shareText
+          ? `${shareText}\n${photo.image_url}`
+          : photo.image_url
+        await navigator.clipboard.writeText(clipboardText)
         setShared(true)
         setTimeout(() => setShared(false), 2000)
       } catch {
