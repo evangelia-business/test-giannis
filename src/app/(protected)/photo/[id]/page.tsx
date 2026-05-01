@@ -7,18 +7,19 @@ import ShareButton from '@/components/ShareButton'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function PhotoDetailPage({ params }: Props) {
-  const supabase = createClient()
+  const { id } = await params
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: photo } = await supabase
     .from('photos')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .single()
 

@@ -1,6 +1,6 @@
 # 📍 SnapPlace
 
-A minimalist photo-capture app built with **Next.js 14**, **Supabase**, and **Tailwind CSS**.
+A minimalist photo-capture app built with **Next.js 15**, **Supabase**, and **Tailwind CSS**.
 
 ## Features
 
@@ -15,7 +15,7 @@ A minimalist photo-capture app built with **Next.js 14**, **Supabase**, and **Ta
 
 | Layer       | Tech                        |
 |-------------|-----------------------------|
-| Framework   | Next.js 14 (App Router)     |
+| Framework   | Next.js 15 (App Router)     |
 | Database    | Supabase (Postgres + Storage)|
 | Auth        | Supabase Auth               |
 | Styling     | Tailwind CSS                |
